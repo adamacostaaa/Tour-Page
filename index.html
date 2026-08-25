@@ -31,7 +31,9 @@
   @keyframes seaglass { 0% { background-position:180% 0; } 55%, 100% { background-position:-80% 0; } }
   .mark { width:38px; height:38px; flex:none; border-radius:999px; display:flex; align-items:center; justify-content:center; font-family:var(--font-heading); font-size:15px; color:var(--color-bg); }
   .thumb { position:relative; aspect-ratio:1; border-radius:var(--radius-sm); overflow:hidden; border:1px solid var(--color-divider); background:var(--color-neutral-200); cursor:pointer; }
-  .thumb img { width:100%; height:100%; object-fit:cover; }
+  .thumb img, .thumb video { width:100%; height:100%; object-fit:cover; display:block; }
+  .thumb .play-badge { position:absolute; inset:0; margin:auto; width:26px; height:26px; border-radius:999px; background:rgba(32,30,29,.55); display:flex; align-items:center; justify-content:center; pointer-events:none; }
+  .thumb .play-badge::after { content:""; border-style:solid; border-width:7px 0 7px 11px; border-color:transparent transparent transparent #fff; margin-left:2px; }
   .thumb .tag-mini { position:absolute; left:4px; bottom:4px; font-size:9px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:2px 6px; border-radius:999px; color:#fff; text-shadow:none; }
   .thumb .tag-mini.keep { background:rgba(122,138,94,.92); }
   .thumb .tag-mini.temp { background:rgba(198,113,57,.92); }
@@ -132,8 +134,9 @@
       <img src="images/hand-photos.png" alt="This is to help us share pictures! Don't worry, you can choose to have your pictures posted on here, or auto-delete in 24 hours!" style="width:100%; margin:0 0 16px; mix-blend-mode:multiply; opacity:.92">
       <label class="btn btn-primary btn-block" style="border-radius:999px; cursor:pointer; width:100%; padding:13px">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-label="Add your photos"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
-        <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
+        <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display:none">
       </label>
+      <div id="uploadError" style="display:none; margin-top:10px; font-size:12px; color:#b3261e; text-align:center"></div>
       <div id="photoGrid" style="display:none; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:16px"></div>
       <div id="photoMeta" style="display:none; flex-direction:column; gap:10px; margin-top:14px">
         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
@@ -178,7 +181,10 @@
   <button class="lb-icon-btn lb-close" id="lightboxClose" aria-label="Close">×</button>
   <button class="lb-icon-btn lb-prev" id="lightboxPrev" aria-label="Previous photo">‹</button>
   <button class="lb-icon-btn lb-next" id="lightboxNext" aria-label="Next photo">›</button>
-  <div id="lightboxImg" style="width:min(100%,520px); height:78vh; border-radius:var(--radius-md); box-shadow:var(--shadow-lg); background-size:contain; background-repeat:no-repeat; background-position:center; touch-action:pan-y"></div>
+  <div id="lightboxMedia" style="width:min(100%,520px); height:78vh; position:relative; border-radius:var(--radius-md); box-shadow:var(--shadow-lg); overflow:hidden; background:#000; touch-action:pan-y">
+    <div id="lightboxImg" style="position:absolute; inset:0; background-size:contain; background-repeat:no-repeat; background-position:center"></div>
+    <video id="lightboxVideo" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:none; background:#000" controls playsinline></video>
+  </div>
   <div id="lightboxStatus" style="color:var(--color-neutral-100); font-size:12px; text-shadow:0 1px 4px rgba(32,30,29,.85)"></div>
   <div style="display:flex; gap:10px">
     <a class="btn btn-primary" id="lightboxDownload" style="border-radius:999px" download="tour-photo.jpg">Download</a>
@@ -188,7 +194,7 @@
 
 <div id="uploadChoice" class="dialog-backdrop" style="display:none; z-index:60;">
   <div class="dialog">
-    <div class="dialog-title">Keep these photos here?</div>
+    <div class="dialog-title">Keep these here?</div>
     <div class="dialog-body">You can leave them on the photobook for everyone to see, or have them clear on their own in 24 hours.</div>
     <label class="radio">
       <input type="checkbox" id="postAsAdam">
@@ -216,6 +222,7 @@
   var selectedIds = {};
 
   var fileInput = document.getElementById('fileInput');
+  var uploadError = document.getElementById('uploadError');
   var photoGrid = document.getElementById('photoGrid');
   var photoMeta = document.getElementById('photoMeta');
   var countLabel = document.getElementById('countLabel');
@@ -228,8 +235,11 @@
   var cancelSelectBtn = document.getElementById('cancelSelectBtn');
   var downloadAdamBtn = document.getElementById('downloadAdamBtn');
   var lightbox = document.getElementById('lightbox');
+  var lightboxMedia = document.getElementById('lightboxMedia');
   var lightboxImg = document.getElementById('lightboxImg');
+  var lightboxVideo = document.getElementById('lightboxVideo');
   var lightboxStatus = document.getElementById('lightboxStatus');
+  var currentIsVideo = false;
   var lightboxDownload = document.getElementById('lightboxDownload');
   var lightboxRemove = document.getElementById('lightboxRemove');
   var lightboxClose = document.getElementById('lightboxClose');
@@ -269,9 +279,21 @@
       photos.forEach(function (p) {
         var div = document.createElement('div');
         div.className = 'thumb washed' + (selecting && selectedIds[p.id] ? ' selected' : '');
-        div.style.backgroundImage = 'url("' + p.url + '")';
-        div.style.backgroundSize = 'cover';
-        div.style.backgroundPosition = 'center';
+        if (p.kind === 'video') {
+          var vid = document.createElement('video');
+          vid.src = p.url;
+          vid.muted = true;
+          vid.playsInline = true;
+          vid.preload = 'metadata';
+          div.appendChild(vid);
+          var play = document.createElement('span');
+          play.className = 'play-badge';
+          div.appendChild(play);
+        } else {
+          div.style.backgroundImage = 'url("' + p.url + '")';
+          div.style.backgroundSize = 'cover';
+          div.style.backgroundPosition = 'center';
+        }
         div.addEventListener('click', function () {
           if (selecting) {
             if (selectedIds[p.id]) delete selectedIds[p.id]; else selectedIds[p.id] = true;
@@ -324,15 +346,31 @@
     });
   }
 
+  function stopLightboxVideo() {
+    lightboxVideo.pause();
+    lightboxVideo.removeAttribute('src');
+    lightboxVideo.load();
+    lightboxVideo.style.display = 'none';
+  }
   function showAtIndex(i) {
     if (!photos.length) { closeLightbox(); return; }
     currentIndex = (i + photos.length) % photos.length;
     var p = photos[currentIndex];
     lightboxId = p.id;
-    lightboxImg.style.backgroundImage = 'url("' + p.url + '")';
+    currentIsVideo = p.kind === 'video';
+    if (currentIsVideo) {
+      lightboxImg.style.display = 'none';
+      lightboxVideo.style.display = 'block';
+      lightboxVideo.src = p.url;
+      lightboxVideo.load();
+    } else {
+      stopLightboxVideo();
+      lightboxImg.style.display = 'block';
+      lightboxImg.style.backgroundImage = 'url("' + p.url + '")';
+    }
     lightboxStatus.textContent = expiryText(p);
     lightboxDownload.href = p.url;
-    lightboxDownload.download = p.name || 'tour-photo.jpg';
+    lightboxDownload.download = p.name || (currentIsVideo ? 'tour-video.mp4' : 'tour-photo.jpg');
   }
   function openLightbox(id) {
     var idx = photos.findIndex(function (p) { return p.id === id; });
@@ -346,10 +384,11 @@
     lightbox.style.display = 'none';
     lightboxId = null;
     currentIndex = -1;
+    stopLightboxVideo();
   }
 
   lightbox.addEventListener('click', closeLightbox);
-  lightboxImg.addEventListener('click', function (e) { e.stopPropagation(); });
+  lightboxMedia.addEventListener('click', function (e) { e.stopPropagation(); });
   lightboxDownload.addEventListener('click', function (e) { e.stopPropagation(); });
   lightboxClose.addEventListener('click', function (e) { e.stopPropagation(); closeLightbox(); });
   lightboxPrev.addEventListener('click', function (e) { e.stopPropagation(); prevPhoto(); });
@@ -372,7 +411,8 @@
   });
 
   var wheelLocked = false;
-  lightboxImg.addEventListener('wheel', function (e) {
+  lightboxMedia.addEventListener('wheel', function (e) {
+    if (currentIsVideo) return;
     e.preventDefault();
     e.stopPropagation();
     if (wheelLocked) return;
@@ -384,13 +424,14 @@
   }, { passive: false });
 
   var touchStartX = null, touchStartY = null;
-  lightboxImg.addEventListener('touchstart', function (e) {
+  lightboxMedia.addEventListener('touchstart', function (e) {
+    if (currentIsVideo) return;
     var t = e.touches[0];
     touchStartX = t.clientX;
     touchStartY = t.clientY;
   }, { passive: true });
-  lightboxImg.addEventListener('touchend', function (e) {
-    if (touchStartX == null) return;
+  lightboxMedia.addEventListener('touchend', function (e) {
+    if (currentIsVideo || touchStartX == null) return;
     var t = e.changedTouches[0];
     var dx = t.clientX - touchStartX;
     var dy = t.clientY - touchStartY;
@@ -419,9 +460,23 @@
     files.forEach(function (f) { form.append('photos', f, f.name); });
     form.append('keep', keep ? 'true' : 'false');
     form.append('postedBy', postedBy);
+    uploadError.style.display = 'none';
     fetch(API, { method: 'POST', body: form })
-      .then(function (res) { if (!res.ok) throw new Error('upload failed'); return refresh(); })
-      .catch(function (err) { console.warn('upload failed', err); });
+      .then(function (res) {
+        if (!res.ok) {
+          return res.json().catch(function () { return {}; }).then(function (body) {
+            throw new Error(body.error || 'upload failed');
+          });
+        }
+        return refresh();
+      })
+      .catch(function (err) {
+        console.warn('upload failed', err);
+        uploadError.textContent = /too large/i.test(err.message)
+          ? 'That upload is too large — try a shorter video or fewer files at once.'
+          : 'Upload failed — check your connection and try again.';
+        uploadError.style.display = 'block';
+      });
   }
   function cancelUpload() {
     pendingFiles = null;

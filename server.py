@@ -29,9 +29,21 @@ DATA_DIR = os.path.join(SITE_DIR, "server_data")
 PHOTOS_DIR = os.path.join(DATA_DIR, "photos")
 DB_PATH = os.path.join(DATA_DIR, "photos.db")
 TTL_MS = 24 * 3600 * 1000
+# Keeps peak memory (body + multipart-split copies) well under Render's
+# free-tier 512MB while still allowing a short phone video clip or two.
+MAX_UPLOAD_BYTES = 100 * 1024 * 1024
 
 mimetypes.add_type("image/avif", ".avif")
 mimetypes.add_type("image/heic", ".heic")
+mimetypes.add_type("video/mp4", ".mp4")
+mimetypes.add_type("video/quicktime", ".mov")
+mimetypes.add_type("video/webm", ".webm")
+mimetypes.add_type("video/x-m4v", ".m4v")
+
+
+def media_kind(name):
+    ctype = mimetypes.guess_type(name)[0] or ""
+    return "video" if ctype.startswith("video/") else "photo"
 
 
 def db():
@@ -80,6 +92,7 @@ def list_photos():
             "keep": bool(r[3]),
             "postedBy": r[4],
             "url": "/api/photos/%s/image" % r[0],
+            "kind": media_kind(r[1]),
         }
         for r in rows
     ]
@@ -155,13 +168,44 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return self.send_json(404, {"error": "file missing"})
         ctype = mimetypes.guess_type(original_name)[0] or "application/octet-stream"
         size = os.path.getsize(path)
-        self.send_response(200)
+
+        # Video elements rely on Range requests to seek/scrub smoothly
+        # (and some mobile browsers won't play at all without it).
+        range_header = self.headers.get("Range")
+        m = re.match(r"bytes=(\d*)-(\d*)", range_header or "")
+        if range_header and m and (m.group(1) or m.group(2)):
+            start = int(m.group(1)) if m.group(1) else 0
+            end = int(m.group(2)) if m.group(2) else size - 1
+            end = min(end, size - 1)
+            if start > end or start >= size:
+                self.send_response(416)
+                self.send_header("Content-Range", "bytes */%d" % size)
+                self.end_headers()
+                return
+            self.send_response(206)
+            self.send_header("Content-Range", "bytes %d-%d/%d" % (start, end, size))
+            length = end - start + 1
+        else:
+            self.send_response(200)
+            start, length = 0, size
+
         self.send_header("Content-Type", ctype)
-        self.send_header("Content-Length", str(size))
+        self.send_header("Accept-Ranges", "bytes")
+        self.send_header("Content-Length", str(length))
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
         with open(path, "rb") as f:
-            self.wfile.write(f.read())
+            f.seek(start)
+            remaining = length
+            while remaining > 0:
+                chunk = f.read(min(65536, remaining))
+                if not chunk:
+                    break
+                try:
+                    self.wfile.write(chunk)
+                except (BrokenPipeError, ConnectionResetError):
+                    break
+                remaining -= len(chunk)
 
     def do_POST(self):
         if self.path != "/api/photos":
@@ -172,6 +216,16 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return self.send_json(400, {"error": "expected multipart/form-data"})
         boundary = m.group(1).strip('"').encode("utf-8")
         length = int(self.headers.get("Content-Length", 0))
+        if length > MAX_UPLOAD_BYTES:
+            # Drain the body so the connection can be reused/closed cleanly
+            # instead of leaving unread bytes confusing the next request.
+            remaining = length
+            while remaining > 0:
+                chunk = self.rfile.read(min(65536, remaining))
+                if not chunk:
+                    break
+                remaining -= len(chunk)
+            return self.send_json(413, {"error": "upload too large (max 100MB per batch)"})
         body = self.rfile.read(length)
         fields, files = parse_multipart(body, boundary)
         if not files:
