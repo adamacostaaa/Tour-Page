@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adam · Alaska Hummer Adventures</title>
+<link rel="stylesheet" href="ds-styles.css">
+<style>
+  body { margin: 0; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+  a:hover { color: var(--color-accent-700); }
+  .lnk { position:relative; overflow:hidden; isolation:isolate; display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:var(--radius-md); text-decoration:none; color:var(--color-text); transition:background .2s, transform .2s, box-shadow .2s;
+    background:linear-gradient(150deg, rgba(255,255,255,.78), rgba(240,250,225,.6) 45%, rgba(255,255,255,.72));
+    text-shadow:0 1px 0 rgba(255,255,255,.9);
+    -webkit-backdrop-filter:blur(12px) saturate(1.5); backdrop-filter:blur(12px) saturate(1.5);
+    border:1px solid rgba(255,255,255,.5);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.65), inset 0 -1px 0 rgba(122,138,94,.16), var(--shadow-sm);
+    border:none; width:100%; font: inherit; text-align:left; }
+  .lnk::after { content:""; position:absolute; inset:0; pointer-events:none; border-radius:inherit;
+    background:linear-gradient(105deg, transparent 38%, rgba(255,255,255,.55) 48%, rgba(240,250,225,.35) 52%, transparent 62%);
+    background-size:260% 100%; animation:seaglass 5.5s ease-in-out infinite; }
+  .lnk:nth-of-type(2)::after { animation-delay:.7s; }
+  .lnk:hover { transform:translateY(-1px); box-shadow:inset 0 1px 0 rgba(255,255,255,.9), var(--shadow-md); background:linear-gradient(150deg, rgba(255,255,255,.9), rgba(240,250,225,.72) 45%, rgba(255,255,255,.85)); color:var(--color-text); }
+  .lnk:active { transform:none; background:linear-gradient(150deg, rgba(255,255,255,.72), rgba(198,113,57,.2)); }
+  @keyframes seaglass { 0% { background-position:180% 0; } 55%, 100% { background-position:-80% 0; } }
+  .mark { width:38px; height:38px; flex:none; border-radius:999px; display:flex; align-items:center; justify-content:center; font-family:var(--font-heading); font-size:15px; color:var(--color-bg); }
+  .thumb { position:relative; aspect-ratio:1; border-radius:var(--radius-sm); overflow:hidden; border:1px solid var(--color-divider); background:var(--color-neutral-200); cursor:pointer; }
+  .thumb img { width:100%; height:100%; object-fit:cover; }
+  .thumb .tag-mini { position:absolute; left:4px; bottom:4px; font-size:9px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:2px 6px; border-radius:999px; color:#fff; text-shadow:none; }
+  .thumb .tag-mini.keep { background:rgba(122,138,94,.92); }
+  .thumb .tag-mini.temp { background:rgba(198,113,57,.92); }
+  .thumb .select-mark { position:absolute; top:6px; right:6px; width:22px; height:22px; border-radius:999px; background:rgba(255,255,255,.85); border:2px solid var(--color-neutral-400); }
+  .thumb.selected { outline:3px solid var(--color-accent); outline-offset:-3px; }
+  .thumb.selected .select-mark { background:var(--color-accent); border-color:var(--color-accent); display:flex; align-items:center; justify-content:center; }
+  .thumb.selected .select-mark::after { content:"✓"; color:#fff; font-size:12px; font-weight:700; }
+  .lb-icon-btn { position:absolute; width:40px; height:40px; border-radius:999px; border:none; background:rgba(245,234,216,.2); color:#fff; font-size:22px; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); transition:background .15s; }
+  .lb-icon-btn:hover { background:rgba(245,234,216,.34); }
+  .lb-close { top:16px; right:16px; }
+  .lb-prev { left:12px; top:50%; transform:translateY(-50%); }
+  .lb-next { right:12px; top:50%; transform:translateY(-50%); }
+  .tiltcol { transform:none; }
+  @media (min-width: 620px) { .tiltcol { transform:rotate(-3deg); transform-origin:50% 12%; } }
+  .polas { display:none; }
+  @media (min-width: 1000px) { .polas { display:block; } }
+  .pola { position:absolute; padding:10px 10px 30px; background:#f2ebdd; border-radius:3px; pointer-events:auto;
+    box-shadow:0 2px 3px rgba(32,30,29,.5), 0 10px 18px rgba(32,30,29,.42);
+    filter:saturate(.82) contrast(.94) brightness(.9) sepia(.1); }
+  .pola img { width:170px; height:200px; object-fit:cover; display:block; filter:saturate(.85) contrast(.92) brightness(.95); }
+  .pola::before { content:""; position:absolute; inset:0; border-radius:3px; pointer-events:none;
+    background:linear-gradient(150deg, rgba(255,236,200,.22), rgba(40,26,12,.2) 85%); mix-blend-mode:overlay; }
+  .pola.faded { filter:saturate(.62) contrast(.86) brightness(1.02) sepia(.22); }
+  .pola.faded img { width:150px; height:180px; filter:saturate(.7) contrast(.85) brightness(1.06); }
+  .pola.faded::after { content:""; position:absolute; inset:0; border-radius:3px; pointer-events:none;
+    background:radial-gradient(ellipse at 30% 20%, rgba(255,247,225,.35), rgba(120,84,44,.18) 90%); }
+  .grip { position:absolute; right:-9px; bottom:-9px; width:24px; height:24px; border-radius:999px; cursor:grab; touch-action:none;
+    background:rgba(198,113,57,.9); border:2px solid #fbf7ef; box-shadow:var(--shadow-sm); opacity:0; transition:opacity .18s; }
+  .grip::after { content:""; position:absolute; inset:6px; border:2px solid #fbf7ef; border-radius:999px; border-right-color:transparent; }
+  .pola:hover .grip { opacity:1; }
+  .grip:active { cursor:grabbing; opacity:1; }
+  input[type="file"]::file-selector-button { display:none; }
+</style>
+</head>
+<body>
+
+<div style="min-height: 100vh; background-image: radial-gradient(ellipse 60% 40% at 12% 8%, rgba(198,113,57,.13), transparent 70%), radial-gradient(ellipse 50% 35% at 88% 22%, rgba(122,138,94,.11), transparent 70%), radial-gradient(ellipse 55% 30% at 30% 62%, rgba(140,73,26,.10), transparent 72%), radial-gradient(ellipse 45% 30% at 80% 88%, rgba(198,113,57,.10), transparent 72%), radial-gradient(circle at 65% 45%, rgba(64,35,16,.055), transparent 45%), repeating-linear-gradient(94deg, rgba(64,35,16,.035) 0 1px, transparent 1px 4px), repeating-linear-gradient(3deg, rgba(64,35,16,.028) 0 1px, transparent 1px 6px); background-blend-mode: multiply, multiply, multiply, multiply, multiply, normal, normal; padding: 26px 16px 60px; display: flex; justify-content: center; font-family: var(--font-body); background: url('images/photo-1504609773096-104ff2c73ba4-mt7swq0f-4y80.avif') center / cover no-repeat; position: relative">
+  <div style="position:fixed; inset:0; pointer-events:none; z-index:0; -webkit-backdrop-filter:blur(3px) saturate(.95); backdrop-filter:blur(3px) saturate(.95)"></div>
+
+  <div class="tiltcol" style="width:100%; max-width:440px; position:relative; z-index:2">
+
+    <div style="position:relative; padding-bottom:12px; transform:rotate(-0.7deg)">
+      <div style="height:10px; margin:0 30px; border-radius:999px 999px 0 0; background:linear-gradient(var(--color-accent-2-500), var(--color-accent-2-600)); box-shadow:var(--shadow-sm)"></div>
+      <div style="height:10px; margin:0 22px; border-radius:999px 999px 0 0; background:linear-gradient(var(--color-accent-400), var(--color-accent-600)); position:relative; top:-3px; box-shadow:var(--shadow-sm)"></div>
+      <div style="height:8px; margin:0 12px; border-radius:999px 999px 0 0; background:linear-gradient(var(--color-neutral-100), var(--color-neutral-300)); position:relative; top:-5px"></div>
+      <div style="position:absolute; top:2px; right:34px; width:14px; height:74px; border-radius:0 0 7px 7px; background:linear-gradient(180deg, var(--color-accent-700), var(--color-accent-800)); box-shadow:var(--shadow-md); z-index:2"></div>
+      <div style="position:absolute; top:76px; right:34px; width:14px; height:12px; background:var(--color-accent-800); clip-path:polygon(0 0, 100% 0, 100% 100%, 50% 62%, 0 100%); z-index:2"></div>
+      <div style="border-radius:var(--radius-lg); padding:28px 26px 26px; position:relative; top:-6px; overflow:hidden;
+        background-color:var(--color-surface);
+        background-image:radial-gradient(ellipse 70% 50% at 8% 0%, rgba(140,73,26,.10), transparent 70%), radial-gradient(ellipse 60% 45% at 95% 90%, rgba(140,73,26,.12), transparent 70%), repeating-linear-gradient(0deg, transparent 0 27px, rgba(122,138,94,.16) 27px 28px);
+        box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.5), inset -14px 0 22px -18px rgba(64,35,16,.5);
+        border:1px solid rgba(140,73,26,.18)">
+        <div style="position:absolute; inset:9px; border:1.5px dashed rgba(140,73,26,.28); border-radius:calc(var(--radius-lg) - 8px); pointer-events:none"></div>
+        <div style="position:absolute; top:0; bottom:0; left:16px; width:1px; background:rgba(198,113,57,.35); pointer-events:none"></div>
+        <h6 style="margin:0 0 10px; color:var(--color-accent-700)">Ketchikan, Alaska</h6>
+        <h1 style="font-size:46px; margin:0 0 2px">Adam</h1>
+        <div style="display:flex; flex-direction:column; margin-bottom:16px">
+          <div style="font-size: 10px; letter-spacing: .02em; color: var(--color-accent-2-700); font-weight: 600">with</div>
+          <div style="font-size: 16px; letter-spacing: .02em; color: var(--color-accent-2-700); font-weight: 600">Alaska Hummer Adventures</div>
+        </div>
+        <img src="images/hand-thanks.png" alt="Thank you for (and not limited to) your: Curiosity, Patience, Communication, Laughs, Considerations." style="width:100%; margin:2px 0 0; mix-blend-mode:multiply; opacity:.92">
+      </div>
+    </div>
+
+    <h6 style="margin: 26px 0 10px 4px; color: #BC5B1A; text-align: center; font-size: 25px; font-family: Roboto; text-shadow: 0 1px 3px rgba(255,255,255,.75); text-decoration-line: underline">Review<br></h6>
+    <div style="display:flex; flex-direction:column; gap:8px">
+      <a class="lnk" href="https://www.google.com/search?q=Alaska+Hummer+Adventures+Ketchikan+reviews" target="_blank" rel="noopener">
+        <span class="mark" style="width:52px; height:40px; border-radius:var(--radius-sm); background:#fff; padding:4px 5px; box-shadow:var(--shadow-sm)"><img src="images/icon-google.png" alt="Google" style="width:100%; height:100%; object-fit:contain"></span>
+        <span style="display:flex; flex-direction:column"><span style="font-weight: 700; font-size: 15px; color: var(--color-neutral-900)">Google</span><span style="font-size: 12.5px; color: var(--color-neutral-900)" class="text-muted">Alaska Hummer Adventures</span></span>
+        <span style="margin-left:auto; color:var(--color-neutral-600)">→</span>
+      </a>
+      <a class="lnk" href="https://www.yelp.com/biz/alaska-hummer-adventures-ketchikan-2" target="_blank" rel="noopener">
+        <span class="mark" style="width:52px; height:40px; border-radius:var(--radius-sm); background:#fff; padding:4px 5px; box-shadow:var(--shadow-sm)"><img src="images/icon-yelp.jpeg" alt="Yelp" style="width:100%; height:100%; object-fit:contain"></span>
+        <span style="display:flex; flex-direction:column"><span style="font-weight:700; font-size:15px">Yelp</span><span style="font-size: 12.5px; color: var(--color-neutral-900)" class="text-muted">Ketchikan · Alaska Hummer Adventures</span></span>
+        <span style="margin-left:auto; color:var(--color-neutral-600)">→</span>
+      </a>
+    </div>
+
+    <h6 style="margin: 24px 0 10px 4px; color: #BC5B1A; text-align: center; font-size: 25px; font-family: Roboto; text-shadow: 0 1px 3px rgba(255,255,255,.75); text-decoration-line: underline">Tip<br></h6>
+    <div style="display:flex; flex-direction:column; gap:8px">
+      <a class="lnk" href="https://venmo.com/u/Adamacostaaa" target="_blank" rel="noopener">
+        <span class="mark" style="width:52px; height:40px; border-radius:var(--radius-sm); background:#fff; padding:4px 5px; box-shadow:var(--shadow-sm)"><img src="images/icon-venmo.png" alt="Venmo" style="width:100%; height:100%; object-fit:contain"></span>
+        <span style="display:flex; flex-direction:column"><span style="font-weight:700; font-size:15px">Venmo</span><span style="font-size: 12.5px; color: var(--color-neutral-900)" class="text-muted">@Adamacostaaa</span></span>
+        <span style="margin-left:auto; color:var(--color-neutral-600)">→</span>
+      </a>
+      <button class="lnk" id="zelleBtn" style="cursor:pointer">
+        <span class="mark" style="width:52px; height:40px; border-radius:var(--radius-sm); background:#fff; padding:4px 5px; box-shadow:var(--shadow-sm)"><img src="images/icon-zelle.png" alt="Zelle" style="width:100%; height:100%; object-fit:contain"></span>
+        <span style="display:flex; flex-direction:column"><span style="font-weight:700; font-size:15px">Zelle</span><span style="font-size: 12.5px; color: var(--color-neutral-900)" class="text-muted">805-415-9284</span></span>
+        <span id="zelleLabel" style="margin-left:auto; font-size:12.5px; font-weight:600; color:var(--color-accent-700)">Tap to copy</span>
+      </button>
+    </div>
+
+    <h6 style="margin: 28px 0 10px 4px; color: #BC5B1A; text-align: center; font-size: 28px; font-family: Roboto; text-decoration-line: underline; font-style: normal">TODAY'S PHOTOBOOK</h6>
+    <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:20px; box-shadow:var(--shadow-sm)">
+      <img src="images/hand-photos.png" alt="This is to help us share pictures! Don't worry, you can choose to have your pictures posted on here, or auto-delete in 24 hours!" style="width:100%; margin:0 0 16px; mix-blend-mode:multiply; opacity:.92">
+      <label class="btn btn-primary btn-block" style="border-radius:999px; cursor:pointer; width:100%; padding:13px">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-label="Add your photos"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+        <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
+      </label>
+      <div id="photoGrid" style="display:none; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:16px"></div>
+      <div id="photoMeta" style="display:none; flex-direction:column; gap:10px; margin-top:14px">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+          <span id="countLabel" style="font-size:12px" class="text-muted"></span>
+          <button class="btn btn-ghost" id="selectToggleBtn" style="margin-left:auto; font-size:13px">Select</button>
+        </div>
+        <div id="selectionBar" style="display:none; align-items:center; gap:10px; flex-wrap:wrap; background:var(--color-neutral-100); border-radius:var(--radius-md); padding:10px 12px">
+          <span id="selectionCount" style="font-size:12px" class="text-muted"></span>
+          <button class="btn btn-primary" id="downloadSelectedBtn" style="border-radius:999px; margin-left:auto; font-size:13px" disabled>Download selected</button>
+          <button class="btn btn-ghost" id="cancelSelectBtn" style="font-size:13px">Cancel</button>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <button class="btn btn-secondary" id="saveAllBtn" style="border-radius:999px; font-size:13px">Save all</button>
+          <button class="btn btn-secondary" id="downloadAdamBtn" style="border-radius:999px; font-size:13px">Download everything posted by Adam</button>
+        </div>
+      </div>
+      <div id="emptyState" style="margin-top:16px; border:1px dashed var(--color-neutral-400); border-radius:var(--radius-md); padding:22px; text-align:center; font-size:13px; color:var(--color-neutral-600)">No photos on the wall yet</div>
+    </div>
+
+    <p style="margin: 26px 4px 0; font-size: 12px; line-height: 1.5; text-align: center; color: var(--color-neutral-100); text-shadow: 0 1px 4px rgba(32,30,29,.85)">Thanks again for spending the day out on the road with me.</p>
+  </div>
+
+  <div class="polas" style="position: absolute; inset: 0; pointer-events: none; z-index: 1;">
+    <div class="pola faded" style="top: 1022px; transform: rotate(4deg); position: absolute; left: 1042px"><img src="images/pola-shore.jpg" alt="Watching the ship from the shore"></div>
+    <div class="pola faded" style="left: 259px; top: 1034px; transform: rotate(14deg); position: absolute; width: 169px; height: 256px"><img src="images/pola-squirrel.jpg" alt="Squirrel on a mossy branch" style="width: 219px; height: 216px"></div>
+    <div class="pola faded" style="left: 171px; top: 884px; transform: rotate(-11deg); position: absolute"><img src="images/pola-plane.jpg" alt="Floatplane over the channel"></div>
+  </div>
+
+  <div class="polas" style="position: absolute; inset: 0; pointer-events: none; z-index: 1; left: 44px; top: -1px">
+    <div class="pola" data-key="ship" style="left: 128px; top: 117px; position: absolute; width: 225px; height: 305px"><img src="images/pola-ship.jpg" alt="Cruise ship in the channel" style="width: 210px; height: 274px"><span class="grip" data-grab="ship" title="Drag to rotate"></span></div>
+    <div class="pola" data-key="bear" style="left: 6px; top: 424px; width: 222px; height: 304px; position: absolute"><img src="images/pola-bear.jpg" alt="Black bear by the stairs" style="width: 332px; height: 269px"><span class="grip" data-grab="bear" title="Drag to rotate"></span></div>
+    <div class="pola" data-key="boots" style="top: 88px; left: 986px; position: absolute"><img src="images/pola-boots.jpg" alt="Boots drying by the shop wall"><span class="grip" data-grab="boots" title="Drag to rotate"></span></div>
+
+    <div class="pola faded" style="left: 119px; top: 665px; transform: rotate(7deg); position: absolute"><img src="images/pola-sunset.jpg" alt="Sunset over the water"></div>
+    <div class="pola faded" style="top: 562px; transform: rotate(-6deg); left: 1011px; position: absolute"><img src="images/pola-raven.jpg" alt="Raven in the spruce"></div>
+    <div class="pola faded" style="top: 320px; transform: rotate(9deg); left: 963px; position: absolute; width: 187px; height: 259px"><img src="images/pola-eagle.jpg" alt="Eagle on a branch" style="width: 170px; height: 219px"></div>
+    <div class="pola faded" style="top: 746px; transform: rotate(-14deg); position: absolute; left: 1004px"><img src="images/pola-berries.jpg" alt="Picking berries"></div>
+  </div>
+</div>
+
+<div id="lightbox" style="display:none; position:fixed; inset:0; background:rgba(32,30,29,.86); z-index:50; align-items:center; justify-content:center; padding:20px; flex-direction:column; gap:16px">
+  <button class="lb-icon-btn lb-close" id="lightboxClose" aria-label="Close">×</button>
+  <button class="lb-icon-btn lb-prev" id="lightboxPrev" aria-label="Previous photo">‹</button>
+  <button class="lb-icon-btn lb-next" id="lightboxNext" aria-label="Next photo">›</button>
+  <div id="lightboxImg" style="width:min(100%,520px); height:78vh; border-radius:var(--radius-md); box-shadow:var(--shadow-lg); background-size:contain; background-repeat:no-repeat; background-position:center; touch-action:pan-y"></div>
+  <div id="lightboxStatus" style="color:var(--color-neutral-100); font-size:12px; text-shadow:0 1px 4px rgba(32,30,29,.85)"></div>
+  <div style="display:flex; gap:10px">
+    <a class="btn btn-primary" id="lightboxDownload" style="border-radius:999px" download="tour-photo.jpg">Download</a>
+    <button class="btn btn-secondary" id="lightboxRemove" style="border-radius:999px; color:var(--color-bg); border-color:rgba(245,234,216,.4)">Remove</button>
+  </div>
+</div>
+
+<div id="uploadChoice" class="dialog-backdrop" style="display:none; z-index:60;">
+  <div class="dialog">
+    <div class="dialog-title">Keep these photos here?</div>
+    <div class="dialog-body">You can leave them on the photobook for everyone to see, or have them clear on their own in 24 hours.</div>
+    <label class="radio">
+      <input type="checkbox" id="postAsAdam">
+      <span class="dot"></span>
+      Posting as Adam (official tour photos)
+    </label>
+    <div class="dialog-actions" style="justify-content:flex-start; flex-wrap:wrap">
+      <button class="btn btn-primary" id="keepForeverBtn" style="border-radius:999px">Keep here</button>
+      <button class="btn btn-secondary" id="keep24Btn" style="border-radius:999px">Auto-delete in 24h</button>
+      <button class="btn btn-ghost" id="uploadCancelBtn" style="margin-left:auto">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var TTL = 24 * 3600 * 1000;
+  var API = '/api/photos';
+
+  var photos = []; // { id, url, added, name, keep, postedBy }
+  var lightboxId = null;
+  var currentIndex = -1;
+  var pendingFiles = null;
+  var selecting = false;
+  var selectedIds = {};
+
+  var fileInput = document.getElementById('fileInput');
+  var photoGrid = document.getElementById('photoGrid');
+  var photoMeta = document.getElementById('photoMeta');
+  var countLabel = document.getElementById('countLabel');
+  var emptyState = document.getElementById('emptyState');
+  var saveAllBtn = document.getElementById('saveAllBtn');
+  var selectToggleBtn = document.getElementById('selectToggleBtn');
+  var selectionBar = document.getElementById('selectionBar');
+  var selectionCount = document.getElementById('selectionCount');
+  var downloadSelectedBtn = document.getElementById('downloadSelectedBtn');
+  var cancelSelectBtn = document.getElementById('cancelSelectBtn');
+  var downloadAdamBtn = document.getElementById('downloadAdamBtn');
+  var lightbox = document.getElementById('lightbox');
+  var lightboxImg = document.getElementById('lightboxImg');
+  var lightboxStatus = document.getElementById('lightboxStatus');
+  var lightboxDownload = document.getElementById('lightboxDownload');
+  var lightboxRemove = document.getElementById('lightboxRemove');
+  var lightboxClose = document.getElementById('lightboxClose');
+  var lightboxPrev = document.getElementById('lightboxPrev');
+  var lightboxNext = document.getElementById('lightboxNext');
+  var zelleBtn = document.getElementById('zelleBtn');
+  var zelleLabel = document.getElementById('zelleLabel');
+  var uploadChoice = document.getElementById('uploadChoice');
+  var postAsAdam = document.getElementById('postAsAdam');
+  var keepForeverBtn = document.getElementById('keepForeverBtn');
+  var keep24Btn = document.getElementById('keep24Btn');
+  var uploadCancelBtn = document.getElementById('uploadCancelBtn');
+
+  function hoursLeft(p) {
+    return Math.max(0, Math.round((p.added + TTL - Date.now()) / 3600000));
+  }
+  function expiryText(p) {
+    if (p.keep) return 'Saved permanently';
+    var hrs = hoursLeft(p);
+    return hrs > 1 ? 'Clears in ' + hrs + ' hours' : 'Clears within the hour';
+  }
+
+  function updateSelectionUI() {
+    var n = Object.keys(selectedIds).length;
+    selectToggleBtn.textContent = selecting ? 'Done' : 'Select';
+    selectionBar.style.display = selecting ? 'flex' : 'none';
+    selectionCount.textContent = n + (n === 1 ? ' selected' : ' selected');
+    downloadSelectedBtn.disabled = n === 0;
+  }
+
+  function render() {
+    if (photos.length) {
+      photoGrid.style.display = 'grid';
+      photoMeta.style.display = 'flex';
+      emptyState.style.display = 'none';
+      photoGrid.innerHTML = '';
+      photos.forEach(function (p) {
+        var div = document.createElement('div');
+        div.className = 'thumb washed' + (selecting && selectedIds[p.id] ? ' selected' : '');
+        div.style.backgroundImage = 'url("' + p.url + '")';
+        div.style.backgroundSize = 'cover';
+        div.style.backgroundPosition = 'center';
+        div.addEventListener('click', function () {
+          if (selecting) {
+            if (selectedIds[p.id]) delete selectedIds[p.id]; else selectedIds[p.id] = true;
+            updateSelectionUI();
+            render();
+          } else {
+            openLightbox(p.id);
+          }
+        });
+        var tag = document.createElement('span');
+        tag.className = 'tag-mini ' + (p.keep ? 'keep' : 'temp');
+        tag.textContent = p.keep ? 'Kept' : '24h';
+        div.appendChild(tag);
+        if (selecting) {
+          var mark = document.createElement('span');
+          mark.className = 'select-mark';
+          div.appendChild(mark);
+        }
+        photoGrid.appendChild(div);
+      });
+      updateSelectionUI();
+      var expiring = photos.filter(function (p) { return !p.keep; });
+      var label = photos.length + (photos.length === 1 ? ' photo' : ' photos');
+      if (expiring.length === 0) {
+        label += ' · saved permanently';
+      } else {
+        var oldest = Math.min.apply(null, expiring.map(function (p) { return p.added; }));
+        var hrs = Math.max(0, Math.round((oldest + TTL - Date.now()) / 3600000));
+        var whenText = hrs > 1 ? 'in ' + hrs + ' hours' : 'within the hour';
+        label += expiring.length === photos.length
+          ? ' · clears ' + whenText
+          : ' · ' + expiring.length + ' clear' + (expiring.length === 1 ? 's' : '') + ' ' + whenText;
+      }
+      countLabel.textContent = label;
+    } else {
+      photoGrid.style.display = 'none';
+      photoMeta.style.display = 'none';
+      emptyState.style.display = 'block';
+    }
+  }
+
+  function refresh() {
+    return fetch(API).then(function (res) {
+      if (!res.ok) throw new Error('failed to load photos');
+      return res.json();
+    }).then(function (list) {
+      list.sort(function (a, b) { return b.added - a.added; });
+      photos = list;
+      render();
+    });
+  }
+
+  function showAtIndex(i) {
+    if (!photos.length) { closeLightbox(); return; }
+    currentIndex = (i + photos.length) % photos.length;
+    var p = photos[currentIndex];
+    lightboxId = p.id;
+    lightboxImg.style.backgroundImage = 'url("' + p.url + '")';
+    lightboxStatus.textContent = expiryText(p);
+    lightboxDownload.href = p.url;
+    lightboxDownload.download = p.name || 'tour-photo.jpg';
+  }
+  function openLightbox(id) {
+    var idx = photos.findIndex(function (p) { return p.id === id; });
+    if (idx === -1) return;
+    showAtIndex(idx);
+    lightbox.style.display = 'flex';
+  }
+  function nextPhoto() { showAtIndex(currentIndex + 1); }
+  function prevPhoto() { showAtIndex(currentIndex - 1); }
+  function closeLightbox() {
+    lightbox.style.display = 'none';
+    lightboxId = null;
+    currentIndex = -1;
+  }
+
+  lightbox.addEventListener('click', closeLightbox);
+  lightboxImg.addEventListener('click', function (e) { e.stopPropagation(); });
+  lightboxDownload.addEventListener('click', function (e) { e.stopPropagation(); });
+  lightboxClose.addEventListener('click', function (e) { e.stopPropagation(); closeLightbox(); });
+  lightboxPrev.addEventListener('click', function (e) { e.stopPropagation(); prevPhoto(); });
+  lightboxNext.addEventListener('click', function (e) { e.stopPropagation(); nextPhoto(); });
+  lightboxRemove.addEventListener('click', function (e) {
+    e.stopPropagation();
+    if (lightboxId == null) return;
+    fetch(API + '/' + lightboxId, { method: 'DELETE' }).then(function () {
+      return refresh();
+    }).then(function () {
+      if (photos.length) showAtIndex(currentIndex); else closeLightbox();
+    }).catch(function (err) { console.warn('remove failed', err); });
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (lightbox.style.display !== 'flex') return;
+    if (e.key === 'ArrowRight') nextPhoto();
+    else if (e.key === 'ArrowLeft') prevPhoto();
+    else if (e.key === 'Escape') closeLightbox();
+  });
+
+  var wheelLocked = false;
+  lightboxImg.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (wheelLocked) return;
+    var delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    if (Math.abs(delta) < 12) return;
+    wheelLocked = true;
+    if (delta > 0) nextPhoto(); else prevPhoto();
+    setTimeout(function () { wheelLocked = false; }, 350);
+  }, { passive: false });
+
+  var touchStartX = null, touchStartY = null;
+  lightboxImg.addEventListener('touchstart', function (e) {
+    var t = e.touches[0];
+    touchStartX = t.clientX;
+    touchStartY = t.clientY;
+  }, { passive: true });
+  lightboxImg.addEventListener('touchend', function (e) {
+    if (touchStartX == null) return;
+    var t = e.changedTouches[0];
+    var dx = t.clientX - touchStartX;
+    var dy = t.clientY - touchStartY;
+    touchStartX = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) nextPhoto(); else prevPhoto();
+    }
+  }, { passive: true });
+
+  fileInput.addEventListener('change', function (e) {
+    var files = Array.prototype.slice.call(e.target.files || []);
+    e.target.value = '';
+    if (!files.length) return;
+    pendingFiles = files;
+    uploadChoice.style.display = 'grid';
+  });
+
+  function commitUpload(keep) {
+    var files = pendingFiles;
+    var postedBy = postAsAdam.checked ? 'adam' : 'guest';
+    pendingFiles = null;
+    postAsAdam.checked = false;
+    uploadChoice.style.display = 'none';
+    if (!files || !files.length) return;
+    var form = new FormData();
+    files.forEach(function (f) { form.append('photos', f, f.name); });
+    form.append('keep', keep ? 'true' : 'false');
+    form.append('postedBy', postedBy);
+    fetch(API, { method: 'POST', body: form })
+      .then(function (res) { if (!res.ok) throw new Error('upload failed'); return refresh(); })
+      .catch(function (err) { console.warn('upload failed', err); });
+  }
+  function cancelUpload() {
+    pendingFiles = null;
+    postAsAdam.checked = false;
+    uploadChoice.style.display = 'none';
+  }
+
+  keepForeverBtn.addEventListener('click', function () { commitUpload(true); });
+  keep24Btn.addEventListener('click', function () { commitUpload(false); });
+  uploadCancelBtn.addEventListener('click', cancelUpload);
+  uploadChoice.addEventListener('click', function (e) { if (e.target === uploadChoice) cancelUpload(); });
+
+  function downloadPhotos(list) {
+    list.forEach(function (p, i) {
+      setTimeout(function () {
+        var a = document.createElement('a');
+        a.href = p.url;
+        a.download = p.name || ('tour-photo-' + (i + 1) + '.jpg');
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }, i * 350);
+    });
+  }
+
+  saveAllBtn.addEventListener('click', function () { downloadPhotos(photos); });
+
+  selectToggleBtn.addEventListener('click', function () {
+    selecting = !selecting;
+    if (!selecting) selectedIds = {};
+    render();
+  });
+  cancelSelectBtn.addEventListener('click', function () {
+    selecting = false;
+    selectedIds = {};
+    render();
+  });
+  downloadSelectedBtn.addEventListener('click', function () {
+    downloadPhotos(photos.filter(function (p) { return selectedIds[p.id]; }));
+  });
+
+  function saveToPhotos(list) {
+    if (!list.length) return Promise.resolve();
+    return Promise.all(list.map(function (p) {
+      return fetch(p.url).then(function (res) { return res.blob(); }).then(function (blob) {
+        return new File([blob], p.name || 'tour-photo.jpg', { type: blob.type || 'image/jpeg' });
+      });
+    })).then(function (files) {
+      var canUseShare = !!(navigator.share && navigator.canShare && navigator.canShare({ files: files }));
+      if (canUseShare) {
+        return navigator.share({ files: files, title: 'Photos from Adam' }).catch(function (err) {
+          if (!err || err.name !== 'AbortError') downloadPhotos(list);
+        });
+      }
+      downloadPhotos(list);
+    }).catch(function () {
+      downloadPhotos(list);
+    });
+  }
+
+  var adamBtnTimer;
+  downloadAdamBtn.addEventListener('click', function () {
+    var adamPhotos = photos.filter(function (p) { return p.postedBy === 'adam'; });
+    if (!adamPhotos.length) {
+      var original = downloadAdamBtn.textContent;
+      downloadAdamBtn.textContent = 'No photos from Adam yet';
+      clearTimeout(adamBtnTimer);
+      adamBtnTimer = setTimeout(function () { downloadAdamBtn.textContent = original; }, 2000);
+      return;
+    }
+    var label = downloadAdamBtn.textContent;
+    downloadAdamBtn.disabled = true;
+    downloadAdamBtn.textContent = 'Preparing…';
+    saveToPhotos(adamPhotos).then(function () {
+      downloadAdamBtn.disabled = false;
+      downloadAdamBtn.textContent = label;
+    });
+  });
+
+  var zelleTimer;
+  zelleBtn.addEventListener('click', function () {
+    if (navigator.clipboard) navigator.clipboard.writeText('805-415-9284');
+    zelleLabel.textContent = 'Copied';
+    clearTimeout(zelleTimer);
+    zelleTimer = setTimeout(function () { zelleLabel.textContent = 'Tap to copy'; }, 2000);
+  });
+
+  refresh().catch(function (e) {
+    console.warn('photo store unavailable', e);
+  });
+  setInterval(function () {
+    if (!pendingFiles) refresh().catch(function () {});
+  }, 12000);
+
+  // — draggable / rotatable polaroids —
+  var rot = (function () {
+    var d = { ship: -3, bear: 0, boots: 6 };
+    try { return Object.assign(d, JSON.parse(localStorage.getItem('pola-rot') || '{}')); } catch (e) { return d; }
+  })();
+
+  function applyRot(key) {
+    var el = document.querySelector('.pola[data-key="' + key + '"]');
+    if (el) el.style.transform = 'rotate(' + rot[key].toFixed(2) + 'deg)';
+  }
+  ['ship', 'bear', 'boots'].forEach(applyRot);
+
+  document.querySelectorAll('.grip').forEach(function (grip) {
+    grip.addEventListener('pointerdown', function (e) {
+      e.preventDefault();
+      var key = grip.getAttribute('data-grab');
+      var box = grip.parentElement.getBoundingClientRect();
+      var cx = box.left + box.width / 2, cy = box.top + box.height / 2;
+      function ang(ev) { return Math.atan2(ev.clientY - cy, ev.clientX - cx) * 180 / Math.PI; }
+      var start = ang(e), base = rot[key];
+      function move(ev) {
+        rot[key] = base + (ang(ev) - start);
+        applyRot(key);
+      }
+      function up() {
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+        try { localStorage.setItem('pola-rot', JSON.stringify(rot)); } catch (err) {}
+      }
+      window.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', up);
+    });
+  });
+})();
+</script>
+</body>
+</html>

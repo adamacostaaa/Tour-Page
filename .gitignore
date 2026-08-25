@@ -1,0 +1,7 @@
+server_data/
+cert.pem
+key.pem
+tour-page-qr.png
+__pycache__/
+*.pyc
+.DS_Store
