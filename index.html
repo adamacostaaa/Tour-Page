@@ -6,7 +6,14 @@
 <title>Adam · Alaska Hummer Adventures</title>
 <link rel="stylesheet" href="ds-styles.css">
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap');
   body { margin: 0; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
+  .postit { position:relative; flex:none; width:140px; padding:10px 12px 16px; border-radius:2px;
+    background:linear-gradient(178deg, #fff7ac, #ffe97a); transform:rotate(7deg);
+    box-shadow:0 5px 10px rgba(32,30,29,.32), 0 1px 3px rgba(32,30,29,.26); }
+  .postit::after { content:""; position:absolute; right:0; bottom:0; width:16px; height:16px; border-radius:0 0 2px 0;
+    background:linear-gradient(135deg, transparent 50%, rgba(120,105,20,.28) 51%); }
+  .postit-text { display:block; font-family:'Caveat', cursive; font-weight:700; font-size:14px; line-height:1.22; color:#1f3a5f; text-align:left; }
   a:hover { color: var(--color-accent-700); }
   .lnk { position:relative; overflow:hidden; isolation:isolate; display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:var(--radius-md); text-decoration:none; color:var(--color-text); transition:background .2s, transform .2s, box-shadow .2s;
     background:linear-gradient(150deg, rgba(255,255,255,.78), rgba(240,250,225,.6) 45%, rgba(255,255,255,.72));
@@ -90,7 +97,6 @@
     </div>
 
     <h6 style="margin: 26px 0 10px 4px; color: #BC5B1A; text-align: center; font-size: 25px; font-family: Roboto; text-shadow: 0 1px 3px rgba(255,255,255,.75); text-decoration-line: underline">Review<br></h6>
-    <p style="margin: -4px 8px 12px; font-size: 11.5px; text-align: center; color: var(--color-neutral-100); text-shadow: 0 1px 4px rgba(32,30,29,.85); opacity:.9">A 5-star review that mentions Adam by name helps the most — thank you!</p>
     <div style="display:flex; flex-direction:column; gap:8px">
       <a class="lnk" href="https://www.google.com/search?q=Alaska+Hummer+Adventures+Ketchikan+reviews" target="_blank" rel="noopener">
         <span class="mark" style="width:52px; height:40px; border-radius:var(--radius-sm); background:#fff; padding:4px 5px; box-shadow:var(--shadow-sm)"><img src="images/icon-google.png" alt="Google" style="width:100%; height:100%; object-fit:contain"></span>
@@ -104,7 +110,10 @@
       </a>
     </div>
 
-    <h6 style="margin: 24px 0 10px 4px; color: #BC5B1A; text-align: center; font-size: 25px; font-family: Roboto; text-shadow: 0 1px 3px rgba(255,255,255,.75); text-decoration-line: underline">Tip<br></h6>
+    <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin: 24px 0 10px 4px">
+      <h6 style="margin:0; color: #BC5B1A; font-size: 25px; font-family: Roboto; text-shadow: 0 1px 3px rgba(255,255,255,.75); text-decoration-line: underline">Tip<br></h6>
+      <div class="postit"><span class="postit-text">Just make sure to mention &quot;Adam&quot; &amp; select 5-stars. It gets me a coffee! Thanks!</span></div>
+    </div>
     <div style="display:flex; flex-direction:column; gap:8px">
       <a class="lnk" href="https://venmo.com/u/Adamacostaaa" target="_blank" rel="noopener">
         <span class="mark" style="width:52px; height:40px; border-radius:var(--radius-sm); background:#fff; padding:4px 5px; box-shadow:var(--shadow-sm)"><img src="images/icon-venmo.png" alt="Venmo" style="width:100%; height:100%; object-fit:contain"></span>
