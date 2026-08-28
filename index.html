@@ -30,22 +30,6 @@
   .lnk:active { transform:none; background:linear-gradient(150deg, rgba(255,255,255,.72), rgba(198,113,57,.2)); }
   @keyframes seaglass { 0% { background-position:180% 0; } 55%, 100% { background-position:-80% 0; } }
   .mark { width:38px; height:38px; flex:none; border-radius:999px; display:flex; align-items:center; justify-content:center; font-family:var(--font-heading); font-size:15px; color:var(--color-bg); }
-  .thumb { position:relative; aspect-ratio:1; border-radius:var(--radius-sm); overflow:hidden; border:1px solid var(--color-divider); background:var(--color-neutral-200); cursor:pointer; }
-  .thumb img, .thumb video { width:100%; height:100%; object-fit:cover; display:block; }
-  .thumb .play-badge { position:absolute; inset:0; margin:auto; width:26px; height:26px; border-radius:999px; background:rgba(32,30,29,.55); display:flex; align-items:center; justify-content:center; pointer-events:none; }
-  .thumb .play-badge::after { content:""; border-style:solid; border-width:7px 0 7px 11px; border-color:transparent transparent transparent #fff; margin-left:2px; }
-  .thumb .tag-mini { position:absolute; left:4px; bottom:4px; font-size:9px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:2px 6px; border-radius:999px; color:#fff; text-shadow:none; }
-  .thumb .tag-mini.keep { background:rgba(122,138,94,.92); }
-  .thumb .tag-mini.temp { background:rgba(198,113,57,.92); }
-  .thumb .select-mark { position:absolute; top:6px; right:6px; width:22px; height:22px; border-radius:999px; background:rgba(255,255,255,.85); border:2px solid var(--color-neutral-400); }
-  .thumb.selected { outline:3px solid var(--color-accent); outline-offset:-3px; }
-  .thumb.selected .select-mark { background:var(--color-accent); border-color:var(--color-accent); display:flex; align-items:center; justify-content:center; }
-  .thumb.selected .select-mark::after { content:"✓"; color:#fff; font-size:12px; font-weight:700; }
-  .lb-icon-btn { position:absolute; width:40px; height:40px; border-radius:999px; border:none; background:rgba(245,234,216,.2); color:#fff; font-size:22px; line-height:1; display:flex; align-items:center; justify-content:center; cursor:pointer; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); transition:background .15s; }
-  .lb-icon-btn:hover { background:rgba(245,234,216,.34); }
-  .lb-close { top:16px; right:16px; }
-  .lb-prev { left:12px; top:50%; transform:translateY(-50%); }
-  .lb-next { right:12px; top:50%; transform:translateY(-50%); }
   .tiltcol { transform:none; }
   @media (min-width: 620px) { .tiltcol { transform:rotate(-3deg); transform-origin:50% 12%; } }
   .polas { display:none; }
@@ -65,27 +49,6 @@
   .grip::after { content:""; position:absolute; inset:6px; border:2px solid #fbf7ef; border-radius:999px; border-right-color:transparent; }
   .pola:hover .grip { opacity:1; }
   .grip:active { cursor:grabbing; opacity:1; }
-  input[type="file"]::file-selector-button { display:none; }
-  .campfire-icon .flame-outer, .campfire-icon .flame-mid, .campfire-icon .flame-inner {
-    transform-box: fill-box; transform-origin: 50% 100%;
-    animation: campfire-flicker 1.1s ease-in-out infinite;
-  }
-  .campfire-icon .flame-mid { animation-delay: .12s; }
-  .campfire-icon .flame-inner { animation-delay: .22s; }
-  .campfire-icon .spark { transform-box: fill-box; transform-origin: 50% 50%; animation: campfire-spark 1.6s ease-in infinite; }
-  .campfire-icon .spark-2 { animation-delay: .45s; }
-  .campfire-icon .spark-3 { animation-delay: .9s; }
-  @keyframes campfire-flicker {
-    0%, 100% { transform: scale(1, 1); }
-    25% { transform: scale(.95, 1.07) translateY(-1px); }
-    55% { transform: scale(1.05, .94); }
-    80% { transform: scale(.97, 1.04) translateY(-.5px); }
-  }
-  @keyframes campfire-spark {
-    0% { transform: translateY(0) scale(1); opacity: 0; }
-    15% { opacity: 1; }
-    100% { transform: translateY(-16px) scale(.4); opacity: 0; }
-  }
 </style>
 </head>
 <body>
@@ -149,50 +112,18 @@
       </button>
     </div>
 
-    <h6 style="margin: 28px 0 10px 4px; color: #BC5B1A; text-align: center; font-size: 28px; font-family: Roboto; text-decoration-line: underline; font-style: normal">TODAY'S PHOTOBOOK</h6>
-    <div style="background:var(--color-surface); border-radius:var(--radius-lg); padding:20px; box-shadow:var(--shadow-sm)">
-      <img src="images/hand-photos.png" alt="This is to help us share pictures! Don't worry, you can choose to have your pictures posted on here, or auto-delete in 24 hours!" style="width:100%; margin:0 0 16px; mix-blend-mode:multiply; opacity:.92">
-      <label class="btn btn-primary btn-block" style="border-radius:999px; cursor:pointer; width:100%; padding:13px">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" aria-label="Add your photos"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
-        <input type="file" id="fileInput" accept="image/*,video/*" multiple style="display:none">
-      </label>
-      <div id="uploadingIndicator" style="display:none; align-items:center; justify-content:center; gap:8px; margin-top:12px; font-size:12.5px; color:var(--color-accent-700); font-weight:600">
-        <svg class="campfire-icon" width="30" height="30" viewBox="0 0 64 64" aria-hidden="true">
-          <g class="spark spark-1"><ellipse cx="20" cy="10" rx="1.6" ry="2.4" fill="#ffcf4d"/></g>
-          <g class="spark spark-2"><ellipse cx="40" cy="6" rx="1.4" ry="2.1" fill="#ff9f1c"/></g>
-          <g class="spark spark-3"><ellipse cx="30" cy="2" rx="1.3" ry="2" fill="#ffcf4d"/></g>
-          <g transform="rotate(-12 32 50)">
-            <rect x="4" y="45" width="56" height="9" rx="4.5" fill="#7a4a2b"/>
-            <circle cx="8" cy="49.5" r="5.5" fill="#a9723f" stroke="#7a4a2b" stroke-width="1"/>
-          </g>
-          <g transform="rotate(14 32 50)">
-            <rect x="4" y="47" width="56" height="9" rx="4.5" fill="#8a5a35"/>
-            <circle cx="56" cy="51.5" r="5.5" fill="#c08a54" stroke="#8a5a35" stroke-width="1"/>
-          </g>
-          <path class="flame-outer" d="M32,8 C18,18 18,38 32,48 C46,38 46,18 32,8 Z" fill="#ffcf4d"/>
-          <path class="flame-mid" d="M32,16 C22,24 22,40 32,46 C42,40 42,24 32,16 Z" fill="#ff9f1c"/>
-          <path class="flame-inner" d="M32,28 C27,33 27,41 32,44 C37,41 37,33 32,28 Z" fill="#f4511e"/>
-        </svg>
-        <span>Uploading…</span>
-      </div>
-      <div id="uploadError" style="display:none; margin-top:10px; font-size:12px; color:#b3261e; text-align:center"></div>
-      <div id="photoGrid" style="display:none; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:16px"></div>
-      <div id="photoMeta" style="display:none; flex-direction:column; gap:10px; margin-top:14px">
-        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-          <span id="countLabel" style="font-size:12px" class="text-muted"></span>
-          <button class="btn btn-ghost" id="selectToggleBtn" style="margin-left:auto; font-size:13px">Select</button>
-        </div>
-        <div id="selectionBar" style="display:none; align-items:center; gap:10px; flex-wrap:wrap; background:var(--color-neutral-100); border-radius:var(--radius-md); padding:10px 12px">
-          <span id="selectionCount" style="font-size:12px" class="text-muted"></span>
-          <button class="btn btn-primary" id="downloadSelectedBtn" style="border-radius:999px; margin-left:auto; font-size:13px" disabled>Download selected</button>
-          <button class="btn btn-ghost" id="cancelSelectBtn" style="font-size:13px">Cancel</button>
-        </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap">
-          <button class="btn btn-secondary" id="saveAllBtn" style="border-radius:999px; font-size:13px">Save all</button>
-          <button class="btn btn-secondary" id="downloadAdamBtn" style="border-radius:999px; font-size:13px">Download everything posted by Adam</button>
-        </div>
-      </div>
-      <div id="emptyState" style="margin-top:16px; border:1px dashed var(--color-neutral-400); border-radius:var(--radius-md); padding:22px; text-align:center; font-size:13px; color:var(--color-neutral-600)">No photos on the wall yet</div>
+    <h6 style="margin: 24px 0 10px 4px; color: #BC5B1A; text-align: center; font-size: 25px; font-family: Roboto; text-shadow: 0 1px 3px rgba(255,255,255,.75); text-decoration-line: underline">Photos</h6>
+    <div style="display:flex; flex-direction:column; gap:8px">
+      <a class="lnk" id="textMeBtn" href="sms:+18054159284">
+        <span class="mark" style="width:52px; height:40px; border-radius:var(--radius-sm); background:#fff; padding:8px; box-shadow:var(--shadow-sm)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#3aa757" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:100%; height:100%"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        </span>
+        <span style="display:flex; flex-direction:column">
+          <span style="font-weight:700; font-size:15px">Text me your photos</span>
+          <span style="font-size: 12.5px; color: var(--color-neutral-900)" class="text-muted">(805) 415-9284 · opens Messages</span>
+        </span>
+        <span style="margin-left:auto; color:var(--color-neutral-600)">→</span>
+      </a>
     </div>
 
     <p style="margin: 26px 4px 0; font-size: 12px; line-height: 1.5; text-align: center; color: var(--color-neutral-100); text-shadow: 0 1px 4px rgba(32,30,29,.85)">Thanks again for spending the day out on the road with me.</p>
@@ -216,392 +147,24 @@
   </div>
 </div>
 
-<div id="lightbox" style="display:none; position:fixed; inset:0; background:rgba(32,30,29,.86); z-index:50; align-items:center; justify-content:center; padding:20px; flex-direction:column; gap:16px">
-  <button class="lb-icon-btn lb-close" id="lightboxClose" aria-label="Close">×</button>
-  <button class="lb-icon-btn lb-prev" id="lightboxPrev" aria-label="Previous photo">‹</button>
-  <button class="lb-icon-btn lb-next" id="lightboxNext" aria-label="Next photo">›</button>
-  <div id="lightboxMedia" style="width:min(100%,520px); height:78vh; position:relative; border-radius:var(--radius-md); box-shadow:var(--shadow-lg); overflow:hidden; background:#000; touch-action:pan-y">
-    <div id="lightboxImg" style="position:absolute; inset:0; background-size:contain; background-repeat:no-repeat; background-position:center"></div>
-    <video id="lightboxVideo" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; display:none; background:#000" controls playsinline></video>
-  </div>
-  <div id="lightboxStatus" style="color:var(--color-neutral-100); font-size:12px; text-shadow:0 1px 4px rgba(32,30,29,.85)"></div>
-  <div style="display:flex; gap:10px">
-    <a class="btn btn-primary" id="lightboxDownload" style="border-radius:999px" download="tour-photo.jpg">Download</a>
-    <button class="btn btn-secondary" id="lightboxRemove" style="border-radius:999px; color:var(--color-bg); border-color:rgba(245,234,216,.4)">Remove</button>
-  </div>
-</div>
-
-<div id="uploadChoice" class="dialog-backdrop" style="display:none; z-index:60;">
-  <div class="dialog">
-    <div class="dialog-title">Keep these here?</div>
-    <div class="dialog-body">You can leave them on the photobook for everyone to see, or have them clear on their own in 24 hours.</div>
-    <label class="radio">
-      <input type="checkbox" id="postAsAdam">
-      <span class="dot"></span>
-      Posting as Adam (official tour photos)
-    </label>
-    <div class="dialog-actions" style="justify-content:flex-start; flex-wrap:wrap">
-      <button class="btn btn-primary" id="keepForeverBtn" style="border-radius:999px">Keep here</button>
-      <button class="btn btn-secondary" id="keep24Btn" style="border-radius:999px">Auto-delete in 24h</button>
-      <button class="btn btn-ghost" id="uploadCancelBtn" style="margin-left:auto">Cancel</button>
-    </div>
-  </div>
-</div>
-
 <script>
 (function () {
-  var TTL = 24 * 3600 * 1000;
-  var API = '/api/photos';
+  var PHONE_DIGITS = '+18054159284';
+  var MESSAGE = 'Hi Adam, here are some photos from today\'s tour!';
 
-  var photos = []; // { id, url, added, name, keep, postedBy }
-  var lightboxId = null;
-  var currentIndex = -1;
-  var pendingFiles = null;
-  var selecting = false;
-  var selectedIds = {};
+  // sms: link bodies aren't standardized: iOS wants "&body=", Android
+  // wants "?body=". Pick the right one so the message is actually
+  // pre-filled instead of just opening Messages empty.
+  var textMeBtn = document.getElementById('textMeBtn');
+  var ua = navigator.userAgent || '';
+  if (/iPhone|iPad|iPod/i.test(ua)) {
+    textMeBtn.href = 'sms:' + PHONE_DIGITS + '&body=' + encodeURIComponent(MESSAGE);
+  } else if (/Android/i.test(ua)) {
+    textMeBtn.href = 'sms:' + PHONE_DIGITS + '?body=' + encodeURIComponent(MESSAGE);
+  }
 
-  var fileInput = document.getElementById('fileInput');
-  var uploadError = document.getElementById('uploadError');
-  var uploadingIndicator = document.getElementById('uploadingIndicator');
-  var photoGrid = document.getElementById('photoGrid');
-  var photoMeta = document.getElementById('photoMeta');
-  var countLabel = document.getElementById('countLabel');
-  var emptyState = document.getElementById('emptyState');
-  var saveAllBtn = document.getElementById('saveAllBtn');
-  var selectToggleBtn = document.getElementById('selectToggleBtn');
-  var selectionBar = document.getElementById('selectionBar');
-  var selectionCount = document.getElementById('selectionCount');
-  var downloadSelectedBtn = document.getElementById('downloadSelectedBtn');
-  var cancelSelectBtn = document.getElementById('cancelSelectBtn');
-  var downloadAdamBtn = document.getElementById('downloadAdamBtn');
-  var lightbox = document.getElementById('lightbox');
-  var lightboxMedia = document.getElementById('lightboxMedia');
-  var lightboxImg = document.getElementById('lightboxImg');
-  var lightboxVideo = document.getElementById('lightboxVideo');
-  var lightboxStatus = document.getElementById('lightboxStatus');
-  var currentIsVideo = false;
-  var lightboxDownload = document.getElementById('lightboxDownload');
-  var lightboxRemove = document.getElementById('lightboxRemove');
-  var lightboxClose = document.getElementById('lightboxClose');
-  var lightboxPrev = document.getElementById('lightboxPrev');
-  var lightboxNext = document.getElementById('lightboxNext');
   var zelleBtn = document.getElementById('zelleBtn');
   var zelleLabel = document.getElementById('zelleLabel');
-  var uploadChoice = document.getElementById('uploadChoice');
-  var postAsAdam = document.getElementById('postAsAdam');
-  var keepForeverBtn = document.getElementById('keepForeverBtn');
-  var keep24Btn = document.getElementById('keep24Btn');
-  var uploadCancelBtn = document.getElementById('uploadCancelBtn');
-
-  function hoursLeft(p) {
-    return Math.max(0, Math.round((p.added + TTL - Date.now()) / 3600000));
-  }
-  function expiryText(p) {
-    if (p.keep) return 'Saved permanently';
-    var hrs = hoursLeft(p);
-    return hrs > 1 ? 'Clears in ' + hrs + ' hours' : 'Clears within the hour';
-  }
-
-  function updateSelectionUI() {
-    var n = Object.keys(selectedIds).length;
-    selectToggleBtn.textContent = selecting ? 'Done' : 'Select';
-    selectionBar.style.display = selecting ? 'flex' : 'none';
-    selectionCount.textContent = n + (n === 1 ? ' selected' : ' selected');
-    downloadSelectedBtn.disabled = n === 0;
-  }
-
-  function render() {
-    if (photos.length) {
-      photoGrid.style.display = 'grid';
-      photoMeta.style.display = 'flex';
-      emptyState.style.display = 'none';
-      photoGrid.innerHTML = '';
-      photos.forEach(function (p) {
-        var div = document.createElement('div');
-        div.className = 'thumb washed' + (selecting && selectedIds[p.id] ? ' selected' : '');
-        if (p.kind === 'video') {
-          var vid = document.createElement('video');
-          vid.src = p.url;
-          vid.muted = true;
-          vid.playsInline = true;
-          vid.preload = 'metadata';
-          div.appendChild(vid);
-          var play = document.createElement('span');
-          play.className = 'play-badge';
-          div.appendChild(play);
-        } else {
-          div.style.backgroundImage = 'url("' + p.url + '")';
-          div.style.backgroundSize = 'cover';
-          div.style.backgroundPosition = 'center';
-        }
-        div.addEventListener('click', function () {
-          if (selecting) {
-            if (selectedIds[p.id]) delete selectedIds[p.id]; else selectedIds[p.id] = true;
-            updateSelectionUI();
-            render();
-          } else {
-            openLightbox(p.id);
-          }
-        });
-        var tag = document.createElement('span');
-        tag.className = 'tag-mini ' + (p.keep ? 'keep' : 'temp');
-        tag.textContent = p.keep ? 'Kept' : '24h';
-        div.appendChild(tag);
-        if (selecting) {
-          var mark = document.createElement('span');
-          mark.className = 'select-mark';
-          div.appendChild(mark);
-        }
-        photoGrid.appendChild(div);
-      });
-      updateSelectionUI();
-      var expiring = photos.filter(function (p) { return !p.keep; });
-      var label = photos.length + (photos.length === 1 ? ' photo' : ' photos');
-      if (expiring.length === 0) {
-        label += ' · saved permanently';
-      } else {
-        var oldest = Math.min.apply(null, expiring.map(function (p) { return p.added; }));
-        var hrs = Math.max(0, Math.round((oldest + TTL - Date.now()) / 3600000));
-        var whenText = hrs > 1 ? 'in ' + hrs + ' hours' : 'within the hour';
-        label += expiring.length === photos.length
-          ? ' · clears ' + whenText
-          : ' · ' + expiring.length + ' clear' + (expiring.length === 1 ? 's' : '') + ' ' + whenText;
-      }
-      countLabel.textContent = label;
-    } else {
-      photoGrid.style.display = 'none';
-      photoMeta.style.display = 'none';
-      emptyState.style.display = 'block';
-    }
-  }
-
-  function refresh() {
-    return fetch(API).then(function (res) {
-      if (!res.ok) throw new Error('failed to load photos');
-      return res.json();
-    }).then(function (list) {
-      list.sort(function (a, b) { return b.added - a.added; });
-      photos = list;
-      render();
-    });
-  }
-
-  function stopLightboxVideo() {
-    lightboxVideo.pause();
-    lightboxVideo.removeAttribute('src');
-    lightboxVideo.load();
-    lightboxVideo.style.display = 'none';
-  }
-  function showAtIndex(i) {
-    if (!photos.length) { closeLightbox(); return; }
-    currentIndex = (i + photos.length) % photos.length;
-    var p = photos[currentIndex];
-    lightboxId = p.id;
-    currentIsVideo = p.kind === 'video';
-    if (currentIsVideo) {
-      lightboxImg.style.display = 'none';
-      lightboxVideo.style.display = 'block';
-      lightboxVideo.src = p.url;
-      lightboxVideo.load();
-    } else {
-      stopLightboxVideo();
-      lightboxImg.style.display = 'block';
-      lightboxImg.style.backgroundImage = 'url("' + p.url + '")';
-    }
-    lightboxStatus.textContent = expiryText(p);
-    lightboxDownload.href = p.url;
-    lightboxDownload.download = p.name || (currentIsVideo ? 'tour-video.mp4' : 'tour-photo.jpg');
-  }
-  function openLightbox(id) {
-    var idx = photos.findIndex(function (p) { return p.id === id; });
-    if (idx === -1) return;
-    showAtIndex(idx);
-    lightbox.style.display = 'flex';
-  }
-  function nextPhoto() { showAtIndex(currentIndex + 1); }
-  function prevPhoto() { showAtIndex(currentIndex - 1); }
-  function closeLightbox() {
-    lightbox.style.display = 'none';
-    lightboxId = null;
-    currentIndex = -1;
-    stopLightboxVideo();
-  }
-
-  lightbox.addEventListener('click', closeLightbox);
-  lightboxMedia.addEventListener('click', function (e) { e.stopPropagation(); });
-  lightboxDownload.addEventListener('click', function (e) { e.stopPropagation(); });
-  lightboxClose.addEventListener('click', function (e) { e.stopPropagation(); closeLightbox(); });
-  lightboxPrev.addEventListener('click', function (e) { e.stopPropagation(); prevPhoto(); });
-  lightboxNext.addEventListener('click', function (e) { e.stopPropagation(); nextPhoto(); });
-  lightboxRemove.addEventListener('click', function (e) {
-    e.stopPropagation();
-    if (lightboxId == null) return;
-    fetch(API + '/' + lightboxId, { method: 'DELETE' }).then(function () {
-      return refresh();
-    }).then(function () {
-      if (photos.length) showAtIndex(currentIndex); else closeLightbox();
-    }).catch(function (err) { console.warn('remove failed', err); });
-  });
-
-  document.addEventListener('keydown', function (e) {
-    if (lightbox.style.display !== 'flex') return;
-    if (e.key === 'ArrowRight') nextPhoto();
-    else if (e.key === 'ArrowLeft') prevPhoto();
-    else if (e.key === 'Escape') closeLightbox();
-  });
-
-  var wheelLocked = false;
-  lightboxMedia.addEventListener('wheel', function (e) {
-    if (currentIsVideo) return;
-    e.preventDefault();
-    e.stopPropagation();
-    if (wheelLocked) return;
-    var delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-    if (Math.abs(delta) < 12) return;
-    wheelLocked = true;
-    if (delta > 0) nextPhoto(); else prevPhoto();
-    setTimeout(function () { wheelLocked = false; }, 350);
-  }, { passive: false });
-
-  var touchStartX = null, touchStartY = null;
-  lightboxMedia.addEventListener('touchstart', function (e) {
-    if (currentIsVideo) return;
-    var t = e.touches[0];
-    touchStartX = t.clientX;
-    touchStartY = t.clientY;
-  }, { passive: true });
-  lightboxMedia.addEventListener('touchend', function (e) {
-    if (currentIsVideo || touchStartX == null) return;
-    var t = e.changedTouches[0];
-    var dx = t.clientX - touchStartX;
-    var dy = t.clientY - touchStartY;
-    touchStartX = null;
-    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
-      if (dx < 0) nextPhoto(); else prevPhoto();
-    }
-  }, { passive: true });
-
-  fileInput.addEventListener('change', function (e) {
-    var files = Array.prototype.slice.call(e.target.files || []);
-    e.target.value = '';
-    if (!files.length) return;
-    pendingFiles = files;
-    uploadChoice.style.display = 'grid';
-  });
-
-  function commitUpload(keep) {
-    var files = pendingFiles;
-    var postedBy = postAsAdam.checked ? 'adam' : 'guest';
-    pendingFiles = null;
-    postAsAdam.checked = false;
-    uploadChoice.style.display = 'none';
-    if (!files || !files.length) return;
-    var form = new FormData();
-    files.forEach(function (f) { form.append('photos', f, f.name); });
-    form.append('keep', keep ? 'true' : 'false');
-    form.append('postedBy', postedBy);
-    uploadError.style.display = 'none';
-    fileInput.disabled = true;
-    uploadingIndicator.style.display = 'flex';
-    fetch(API, { method: 'POST', body: form })
-      .then(function (res) {
-        if (!res.ok) {
-          return res.json().catch(function () { return {}; }).then(function (body) {
-            throw new Error(body.error || 'upload failed');
-          });
-        }
-        return refresh();
-      })
-      .catch(function (err) {
-        console.warn('upload failed', err);
-        uploadError.textContent = /too large/i.test(err.message)
-          ? 'That upload is too large — try a shorter video or fewer files at once.'
-          : 'Upload failed — check your connection and try again.';
-        uploadError.style.display = 'block';
-      })
-      .then(function () {
-        uploadingIndicator.style.display = 'none';
-        fileInput.disabled = false;
-      });
-  }
-  function cancelUpload() {
-    pendingFiles = null;
-    postAsAdam.checked = false;
-    uploadChoice.style.display = 'none';
-  }
-
-  keepForeverBtn.addEventListener('click', function () { commitUpload(true); });
-  keep24Btn.addEventListener('click', function () { commitUpload(false); });
-  uploadCancelBtn.addEventListener('click', cancelUpload);
-  uploadChoice.addEventListener('click', function (e) { if (e.target === uploadChoice) cancelUpload(); });
-
-  function downloadPhotos(list) {
-    list.forEach(function (p, i) {
-      setTimeout(function () {
-        var a = document.createElement('a');
-        a.href = p.url;
-        a.download = p.name || ('tour-photo-' + (i + 1) + '.jpg');
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-      }, i * 350);
-    });
-  }
-
-  saveAllBtn.addEventListener('click', function () { downloadPhotos(photos); });
-
-  selectToggleBtn.addEventListener('click', function () {
-    selecting = !selecting;
-    if (!selecting) selectedIds = {};
-    render();
-  });
-  cancelSelectBtn.addEventListener('click', function () {
-    selecting = false;
-    selectedIds = {};
-    render();
-  });
-  downloadSelectedBtn.addEventListener('click', function () {
-    downloadPhotos(photos.filter(function (p) { return selectedIds[p.id]; }));
-  });
-
-  function saveToPhotos(list) {
-    if (!list.length) return Promise.resolve();
-    return Promise.all(list.map(function (p) {
-      return fetch(p.url).then(function (res) { return res.blob(); }).then(function (blob) {
-        return new File([blob], p.name || 'tour-photo.jpg', { type: blob.type || 'image/jpeg' });
-      });
-    })).then(function (files) {
-      var canUseShare = !!(navigator.share && navigator.canShare && navigator.canShare({ files: files }));
-      if (canUseShare) {
-        return navigator.share({ files: files, title: 'Photos from Adam' }).catch(function (err) {
-          if (!err || err.name !== 'AbortError') downloadPhotos(list);
-        });
-      }
-      downloadPhotos(list);
-    }).catch(function () {
-      downloadPhotos(list);
-    });
-  }
-
-  var adamBtnTimer;
-  downloadAdamBtn.addEventListener('click', function () {
-    var adamPhotos = photos.filter(function (p) { return p.postedBy === 'adam'; });
-    if (!adamPhotos.length) {
-      var original = downloadAdamBtn.textContent;
-      downloadAdamBtn.textContent = 'No photos from Adam yet';
-      clearTimeout(adamBtnTimer);
-      adamBtnTimer = setTimeout(function () { downloadAdamBtn.textContent = original; }, 2000);
-      return;
-    }
-    var label = downloadAdamBtn.textContent;
-    downloadAdamBtn.disabled = true;
-    downloadAdamBtn.textContent = 'Preparing…';
-    saveToPhotos(adamPhotos).then(function () {
-      downloadAdamBtn.disabled = false;
-      downloadAdamBtn.textContent = label;
-    });
-  });
-
   var zelleTimer;
   zelleBtn.addEventListener('click', function () {
     if (navigator.clipboard) navigator.clipboard.writeText('805-415-9284');
@@ -609,13 +172,6 @@
     clearTimeout(zelleTimer);
     zelleTimer = setTimeout(function () { zelleLabel.textContent = 'Tap to copy'; }, 2000);
   });
-
-  refresh().catch(function (e) {
-    console.warn('photo store unavailable', e);
-  });
-  setInterval(function () {
-    if (!pendingFiles) refresh().catch(function () {});
-  }, 12000);
 
   // — draggable / rotatable polaroids —
   var rot = (function () {
