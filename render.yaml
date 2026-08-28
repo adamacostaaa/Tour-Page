@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: tour-page
+    env: python
+    plan: free
+    buildCommand: "echo no build needed"
+    startCommand: "python3 -m http.server $PORT"
